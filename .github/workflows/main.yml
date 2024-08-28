@@ -63,7 +63,9 @@ jobs:
  Upload_scans_to_dojo:
   name: Upload scans to defectdojo
   runs-on: ubuntu-latest
-  needs: [sast_scan, image_scan]
+  needs:
+   - sast_scan
+   - image_scan
   if: always()
   
   steps:
@@ -73,9 +75,12 @@ jobs:
      name: bandit-findings
      path: .
 
-  - name: List Files After Downloading Artifact
-    run: ls -l
-      
+  - name: Download Docker Scout Findings Artifact
+    uses: actions/download-artifact@v4.1.8
+    with:
+     name: docker-scout-findings
+     path: .
+     
   - name: Create Product in DefectDojo
     id: create_product
     env:
@@ -128,12 +133,6 @@ jobs:
            -F "scan_type=Bandit Scan" \
            -F "file=@$REPORT_FILE" \
            -F "engagement=$ENGAGEMENT_ID"
-           
-  - name: Download Docker Scout Findings Artifact
-    uses: actions/download-artifact@v4.1.8
-    with:
-     name: docker-scout-findings
-     path: .
      
   - name: Upload Docker-Scout Report to DefectDojo
     env:
