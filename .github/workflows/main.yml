@@ -46,12 +46,14 @@ jobs:
      run: docker build -f Dockerfile -t myapp:latest .
 
    - name: Docker scout scan
-     run: |
-      curl -fsSL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh -o install-scout.sh
-      sh install-scout.sh
-      echo ${{secrets.DOCKER_PASS}} | docker login -u ${{secrets.DOCKER_USER}} --password-stdin
-      docker scout quickview
-      docker scout cves --only-severity critical,high --format sarif -o scout-report.sarif --exit-code true
+     uses: docker/scout-action@v1.13.0
+     with:
+      dockerhub-user: ${{secrets.DOCKER_USER}}
+      dockerhub-password: ${{secrets.DOCKER_PASS}}
+      command: quickview,cves
+      only-severities: critical,high
+      sarif-file: scout-report.sarif
+      exit-code: true
 
    - name: Upload Artifacts
      uses: actions/upload-artifact@v4
