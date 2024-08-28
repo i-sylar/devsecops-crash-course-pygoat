@@ -69,10 +69,10 @@ jobs:
   
   steps:
   - name: Download Bandit Findings Artifact
-    uses: actions/download-artifact@v2
+    uses: actions/download-artifact@v4.1.8
     with:
      name: bandit-findings
-     path: ./bandit-findings.json
+     path: .
 
   - name: List Files After Downloading Artifact
     run: ls -l
