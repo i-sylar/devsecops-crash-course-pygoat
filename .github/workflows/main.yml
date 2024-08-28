@@ -63,7 +63,7 @@ jobs:
  Upload_scans_to_dojo:
   name: Upload scans to defectdojo
   runs-on: ubuntu-latest
-  needs: sast_scan
+  needs: [sast_scan, image_scan]
   if: always()
   
   steps:
