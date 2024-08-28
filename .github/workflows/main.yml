@@ -60,50 +60,55 @@ jobs:
       name: Docker Scout Findings
       path: scout-report.sarif
 
-   - name: Create Product in DefectDojo
-     env:
-          DEFECTDOJO_URL: ${{ secrets.DEFECTDOJO_URL }}
-          DEFECTDOJO_API_KEY: ${{ secrets.DEFECTDOJO_API_KEY }}
-     run: |
-          apt-get install -y jq
-          PRODUCT_NAME="My Product $(date +'%Y-%m-%d %H:%M:%S')"
-          RESPONSE=$(curl -s -X POST "$DEFECTDOJO_URL/api/v2/products/" \
-            -H "Authorization: Token $DEFECTDOJO_API_KEY" \
-            -H "Content-Type: application/json" \
-            -d "{\"name\": \"$PRODUCT_NAME\", \"description\": \"Auto-created product\"}")
-          echo "$RESPONSE"
-          PRODUCT_ID=$(echo "$RESPONSE" | jq -r '.id')
-          echo "::set-output name=product_id::$PRODUCT_ID"
-          echo "::set-output name=product_name::$PRODUCT_NAME"
-          
-   - name: Create Engagement in DefectDojo
-     env:
-      DEFECTDOJO_URL: ${{ secrets.DEFECTDOJO_URL }}
-      DEFECTDOJO_API_KEY: ${{ secrets.DEFECTDOJO_API_KEY }}
-     run: |
-          ENGAGEMENT_NAME="Automated Engagement $(date +'%Y-%m-%d %H:%M:%S')"
-          START_DATE=$(date +'%Y-%m-%d')
-          END_DATE=$(date -d "+7 days" +'%Y-%m-%d')
-          PRODUCT_ID=${{ steps.create_product.outputs.product_id }}
-          RESPONSE=$(curl -s -X POST "$DEFECTDOJO_URL/api/v2/engagements/" \
-            -H "Authorization: Token $DEFECTDOJO_API_KEY" \
-            -H "Content-Type: application/json" \
-            -d "{\"name\": \"$ENGAGEMENT_NAME\", \"product\": $PRODUCT_ID, \"target_start\": \"$START_DATE\", \"target_end\": \"$END_DATE\", \"active\": true, \"status\": \"In Progress\"}")
-          echo "$RESPONSE"
-          ENGAGEMENT_ID=$(echo "$RESPONSE" | jq -r '.id')
-          echo "::set-output name=engagement_id::$ENGAGEMENT_ID"
-          echo "::set-output name=engagement_name::$ENGAGEMENT_NAME"
+ Upload_scans_to_dojo:
+  name: Upload scans to defectdojo
+  runs-on: ubuntu-latest
 
-   - name: Upload Report to DefectDojo
-     env:
-      DEFECTDOJO_URL: ${{ secrets.DEFECTDOJO_URL }}
-      DEFECTDOJO_API_KEY: ${{ secrets.DEFECTDOJO_API_KEY }}
-     run: |
-          REPORT_FILE=$(find . -type f -name "*.json" | head -n 1)
-          ENGAGEMENT_ID=${{ steps.create_engagement.outputs.engagement_id }}
-          curl -X POST "$DEFECTDOJO_URL/api/v2/import-scan/" \
-            -H "Authorization: Token $DEFECTDOJO_API_KEY" \
-            -H "Content-Type: multipart/form-data" \
-            -F "scan_type=My Scan Type" \
-            -F "file=@$REPORT_FILE" \
-            -F "engagement=$ENGAGEMENT_ID"
+  steps:
+  - name: Create Product in DefectDojo
+    env:
+         DEFECTDOJO_URL: ${{ secrets.DEFECTDOJO_URL }}
+         DEFECTDOJO_API_KEY: ${{ secrets.DEFECTDOJO_API_KEY }}
+    run: |
+         apt-get install -y jq
+         PRODUCT_NAME="My Product $(date +'%Y-%m-%d %H:%M:%S')"
+         RESPONSE=$(curl -s -X POST "$DEFECTDOJO_URL/api/v2/products/" \
+           -H "Authorization: Token $DEFECTDOJO_API_KEY" \
+           -H "Content-Type: application/json" \
+           -d "{\"name\": \"$PRODUCT_NAME\", \"description\": \"Auto-created product\"}")
+         echo "$RESPONSE"
+         PRODUCT_ID=$(echo "$RESPONSE" | jq -r '.id')
+         echo "::set-output name=product_id::$PRODUCT_ID"
+         echo "::set-output name=product_name::$PRODUCT_NAME"
+         
+  - name: Create Engagement in DefectDojo
+    env:
+     DEFECTDOJO_URL: ${{ secrets.DEFECTDOJO_URL }}
+     DEFECTDOJO_API_KEY: ${{ secrets.DEFECTDOJO_API_KEY }}
+    run: |
+         ENGAGEMENT_NAME="Automated Engagement $(date +'%Y-%m-%d %H:%M:%S')"
+         START_DATE=$(date +'%Y-%m-%d')
+         END_DATE=$(date -d "+7 days" +'%Y-%m-%d')
+         PRODUCT_ID=${{ steps.create_product.outputs.product_id }}
+         RESPONSE=$(curl -s -X POST "$DEFECTDOJO_URL/api/v2/engagements/" \
+           -H "Authorization: Token $DEFECTDOJO_API_KEY" \
+           -H "Content-Type: application/json" \
+           -d "{\"name\": \"$ENGAGEMENT_NAME\", \"product\": $PRODUCT_ID, \"target_start\": \"$START_DATE\", \"target_end\": \"$END_DATE\", \"active\": true, \"status\": \"In Progress\"}")
+         echo "$RESPONSE"
+         ENGAGEMENT_ID=$(echo "$RESPONSE" | jq -r '.id')
+         echo "::set-output name=engagement_id::$ENGAGEMENT_ID"
+         echo "::set-output name=engagement_name::$ENGAGEMENT_NAME"
+ 
+  - name: Upload Report to DefectDojo
+    env:
+     DEFECTDOJO_URL: ${{ secrets.DEFECTDOJO_URL }}
+     DEFECTDOJO_API_KEY: ${{ secrets.DEFECTDOJO_API_KEY }}
+    run: |
+         REPORT_FILE=$(find . -type f -name "*.json" | head -n 1)
+         ENGAGEMENT_ID=${{ steps.create_engagement.outputs.engagement_id }}
+         curl -X POST "$DEFECTDOJO_URL/api/v2/import-scan/" \
+           -H "Authorization: Token $DEFECTDOJO_API_KEY" \
+           -H "Content-Type: multipart/form-data" \
+           -F "scan_type=My Scan Type" \
+           -F "file=@$REPORT_FILE" \
+           -F "engagement=$ENGAGEMENT_ID"
