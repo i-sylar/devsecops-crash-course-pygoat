@@ -125,6 +125,6 @@ jobs:
          curl -X POST "$DEFECTDOJO_URL/api/v2/import-scan/" \
            -H "Authorization: Token $DEFECTDOJO_API_KEY" \
            -H "Content-Type: multipart/form-data" \
-           -F "scan_type=My Scan Type" \
+           -F "scan_type=SARIF" \
            -F "file=@$REPORT_FILE" \
            -F "engagement=$ENGAGEMENT_ID"
