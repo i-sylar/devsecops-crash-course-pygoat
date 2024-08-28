@@ -51,7 +51,7 @@ jobs:
       sh install-scout.sh
       echo ${{secrets.DOCKER_PASS}} | docker login -u ${{secrets.DOCKER_USER}} --password-stdin
       docker scout quickview
-      docker scout cves --only-severity critical,high --format sarif -o scout-report.sarif
+      docker scout cves --only-severity critical,high --format sarif -o scout-report.sarif --exit-code true
 
    - name: Upload Artifacts
      uses: actions/upload-artifact@v4
