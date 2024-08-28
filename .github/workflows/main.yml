@@ -65,7 +65,6 @@ jobs:
   runs-on: ubuntu-latest
   needs: 
       - sast_scan
-      - image_scan
   if: always()
   
   steps:
