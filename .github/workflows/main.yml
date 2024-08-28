@@ -63,9 +63,11 @@ jobs:
  Upload_scans_to_dojo:
   name: Upload scans to defectdojo
   runs-on: ubuntu-latest
+  needs: sast_scan
 
   steps:
   - name: Create Product in DefectDojo
+    id: create_product
     env:
          DEFECTDOJO_URL: ${{ secrets.DEFECTDOJO_URL }}
          DEFECTDOJO_API_KEY: ${{ secrets.DEFECTDOJO_API_KEY }}
@@ -82,6 +84,7 @@ jobs:
          echo "::set-output name=product_name::$PRODUCT_NAME"
          
   - name: Create Engagement in DefectDojo
+    id: create_engagement
     env:
      DEFECTDOJO_URL: ${{ secrets.DEFECTDOJO_URL }}
      DEFECTDOJO_API_KEY: ${{ secrets.DEFECTDOJO_API_KEY }}
