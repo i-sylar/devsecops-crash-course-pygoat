@@ -5,7 +5,7 @@ on: [push]
 jobs:
  sast_scan:
   name: Run Bandit Scan
-  runs-on: Ubuntu-latest
+  runs-on: ubuntu-latest
 
   steps:
   - name: Checkout Code
@@ -31,7 +31,7 @@ jobs:
 
  image_scan:
   name: Build image and run container scan
-  runs-on: Ubuntu-latest
+  runs-on: ubuntu-latest
 
   steps:
    - name: Checkout Code
@@ -42,7 +42,7 @@ jobs:
      with:
       docker_version: '20.10.7'
 
-   - name: Build Image
+   - name: Build docker Image
      run: docker build -f Dockerfile -t myapp:latest .
 
    - name: Docker scout scan
