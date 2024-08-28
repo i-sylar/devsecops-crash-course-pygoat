@@ -63,8 +63,7 @@ jobs:
  Upload_scans_to_dojo:
   name: Upload scans to defectdojo
   runs-on: ubuntu-latest
-  needs: 
-      - sast_scan
+  needs: sast_scan
   if: always()
   
   steps:
@@ -85,10 +84,12 @@ jobs:
     run: |
          sudo apt-get install -y jq
          PRODUCT_NAME="My Product $(date +'%Y-%m-%d %H:%M:%S')"
+         PROD_TYPE_ID=1
          RESPONSE=$(curl -s -X POST "$DEFECTDOJO_URL/api/v2/products/" \
            -H "Authorization: Token $DEFECTDOJO_API_KEY" \
            -H "Content-Type: application/json" \
-           -d "{\"name\": \"$PRODUCT_NAME\", \"description\": \"Auto-created product\"}")
+           -d "{\"name\": \"$PRODUCT_NAME\", \"description\": \"Auto-created product\", \"prod_type\": $PROD_TYPE_ID}")
+
          echo "$RESPONSE"
          PRODUCT_ID=$(echo "$RESPONSE" | jq -r '.id')
          echo "::set-output name=product_id::$PRODUCT_ID"
@@ -104,6 +105,7 @@ jobs:
          START_DATE=$(date +'%Y-%m-%d')
          END_DATE=$(date -d "+7 days" +'%Y-%m-%d')
          PRODUCT_ID=${{ steps.create_product.outputs.product_id }}
+
          RESPONSE=$(curl -s -X POST "$DEFECTDOJO_URL/api/v2/engagements/" \
            -H "Authorization: Token $DEFECTDOJO_API_KEY" \
            -H "Content-Type: application/json" \
