@@ -68,6 +68,12 @@ jobs:
   if: always()
   
   steps:
+  - name: Download Bandit Findings Artifact
+    uses: actions/download-artifact@v2
+    with:
+     name: bandit-findings
+     path: .
+        
   - name: Create Product in DefectDojo
     id: create_product
     env:
