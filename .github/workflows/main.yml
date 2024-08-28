@@ -70,7 +70,7 @@ jobs:
          DEFECTDOJO_URL: ${{ secrets.DEFECTDOJO_URL }}
          DEFECTDOJO_API_KEY: ${{ secrets.DEFECTDOJO_API_KEY }}
     run: |
-         apt-get install -y jq
+         sudo apt-get install -y jq
          PRODUCT_NAME="My Product $(date +'%Y-%m-%d %H:%M:%S')"
          RESPONSE=$(curl -s -X POST "$DEFECTDOJO_URL/api/v2/products/" \
            -H "Authorization: Token $DEFECTDOJO_API_KEY" \
