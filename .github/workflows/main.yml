@@ -57,7 +57,7 @@ jobs:
      uses: actions/upload-artifact@v4
      if: always()
      with:
-      name: Docker Scout Findings
+      name: docker-scout-findings
       path: scout-report.sarif
 
  Upload_scans_to_dojo:
@@ -115,7 +115,7 @@ jobs:
          echo "::set-output name=engagement_id::$ENGAGEMENT_ID"
          echo "::set-output name=engagement_name::$ENGAGEMENT_NAME"
  
-  - name: Upload Report to DefectDojo
+  - name: Upload Bandit Report to DefectDojo
     env:
      DEFECTDOJO_URL: ${{ secrets.DEFECTDOJO_URL }}
      DEFECTDOJO_API_KEY: ${{ secrets.DEFECTDOJO_API_KEY }}
@@ -126,5 +126,25 @@ jobs:
            -H "Authorization: Token $DEFECTDOJO_API_KEY" \
            -H "Content-Type: multipart/form-data" \
            -F "scan_type=Bandit Scan" \
+           -F "file=@$REPORT_FILE" \
+           -F "engagement=$ENGAGEMENT_ID"
+           
+  - name: Download Docker Scout Findings Artifact
+    uses: actions/download-artifact@v4.1.8
+    with:
+     name: docker-scout-findings
+     path: .
+     
+  - name: Upload Docker-Scout Report to DefectDojo
+    env:
+     DEFECTDOJO_URL: ${{ secrets.DEFECTDOJO_URL }}
+     DEFECTDOJO_API_KEY: ${{ secrets.DEFECTDOJO_API_KEY }}
+    run: |
+         REPORT_FILE='scout-report.sarif'
+         ENGAGEMENT_ID=${{ steps.create_engagement.outputs.engagement_id }}
+         curl -X POST "$DEFECTDOJO_URL/api/v2/import-scan/" \
+           -H "Authorization: Token $DEFECTDOJO_API_KEY" \
+           -H "Content-Type: multipart/form-data" \
+           -F "scan_type=SARIF" \
            -F "file=@$REPORT_FILE" \
            -F "engagement=$ENGAGEMENT_ID"
